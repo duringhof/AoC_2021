@@ -10,6 +10,26 @@ vector<bool> string2bool(string s) {
     return res;
 }
 
+int boolvec2int(vector<bool> v) {
+    int res = 0;
+    for (int i = 0; i < v.size(); i++) {
+        res += v[i] * pow(2, v.size() - i - 1);
+    }
+    return res;
+}
+
+vector<int> countOnes(vector<vector<bool>> v) {
+    vector<int> res(v[0].size(), 0);
+    for (int i = 0; i < v.size(); i++) {
+        for (int j = 0; j < v[i].size(); j++) {
+            if (v[i][j]) {
+                res[j]++;
+            }
+        }
+    }
+    return res;
+}
+
 int main() {
 
     vector<string> lines = readLines("../input/input03.txt");
@@ -18,16 +38,7 @@ int main() {
         input.push_back(string2bool(line));
     }
 
-    vector<int> counts(input[0].size(), 0);
-
-    
-    for (auto code : input) {
-        for (int i = 0; i < code.size(); i++) {
-            if (code[i]) {
-                counts[i]++;
-            }
-        }
-    }
+    vector<int> counts = countOnes(input);
 
     int epsilon = 0;
     int gamma = 0;
@@ -40,7 +51,55 @@ int main() {
     }
     
     cout << "Part 1 - The power of the submarine is " << gamma*epsilon << endl;
-    cout << "Part 2 - Day 3 is not ready yet... " << endl;
+
+    vector<vector<bool>> OGR = input; // OGR stands for "Oxygen Generator Rating"
+    vector<vector<bool>> CSR = input; // CSR stands for "CO2 Scrubber Rating"
+    vector<vector<bool>> OGRnew = OGR;
+    vector<vector<bool>> CSRnew = CSR;
+
+    int pos = 0;
+    int counter = 0;
+    bool found = false;
+    int target = 0;
+
+    while (!found) {
+        OGR = OGRnew;
+        OGRnew.clear();
+        counter = countOnes(OGR)[pos];
+        target = (2*counter >= OGR.size());
+        for (int i = 0; i < OGR.size(); i++) {
+            if (OGR[i][pos] == target) {
+                OGRnew.push_back(OGR[i]);
+            }
+        }
+        found = (OGRnew.size() == 1);
+        pos++;
+    }
+    OGR = OGRnew;
+
+    pos = 0;
+    found = false;
+    target = 0;
+
+    while (!found) {
+        CSR = CSRnew;
+        CSRnew.clear();
+        counter = countOnes(CSR)[pos];
+        target = (2*counter < CSR.size());
+        for (int i = 0; i < CSR.size(); i++) {
+            if ((CSR[i][pos] == target)) {
+                CSRnew.push_back(CSR[i]);
+            }
+        }
+        found = (CSRnew.size() == 1);
+        pos++;
+    }
+    CSR = CSRnew;
+
+    cout << "Part 2 - The life support rating of the submarine is "
+        << boolvec2int(OGR[0]) << " multiplied by "
+        << boolvec2int(CSR[0]) << " = "
+        << boolvec2int(OGR[0])*boolvec2int(CSR[0]) << endl;
     
     return 0;
 }
