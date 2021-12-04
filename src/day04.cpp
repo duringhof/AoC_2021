@@ -91,47 +91,32 @@ int main() {
     }
 
     int draw_nr = 0;
-    bool bingo = false;
-
-    while (!bingo && draw_nr < draws.size()) {
-        for (int card = 0; card < cards.size(); card++) {
-            for (int row = 0; row < 5; row++) {
-                for (int col = 0; col < 5; col++) {
-                    if (cards[card][row][col].value == draws[draw_nr]) {
-                        cards[card][row][col].drawn = true;
-                        if (checkRow(cards[card], row) || checkColumn(cards[card], col)) {
-                            cout << "Part 1 - The score of the first winning board is: " 
-                                 << cards[card][row][col].value * sumOfUnmarked(cards[card])
-                                 << endl;
-                            bingo = true;
-                        }
-                    }
-                }
-            }
-        }
-        draw_nr++;
-    }
-
-    draw_nr = 0;
-    bingo = false;
+    bool firstbingo = false;
+    bool lastbingo = false;
 
     vector<int> winning_cards;
 
-    while (!bingo && draw_nr < draws.size()) {
+    while (!lastbingo && draw_nr < draws.size()) {
         for (int card = 0; card < cards.size(); card++) {
             for (int row = 0; row < 5; row++) {
                 for (int col = 0; col < 5; col++) {
                     if (cards[card][row][col].value == draws[draw_nr]) {
                         cards[card][row][col].drawn = true;
                         if (checkRow(cards[card], row) || checkColumn(cards[card], col)) {
+                            if (!firstbingo) {
+                                cout << "Part 1 - The score of the first winning board is: " 
+                                     << cards[card][row][col].value * sumOfUnmarked(cards[card])
+                                     << endl;
+                                    firstbingo = true;
+                            }
                             if (find(winning_cards.begin(), winning_cards.end(), card) == winning_cards.end()) {
                                 winning_cards.push_back(card);
                             }
-                            if (winning_cards.size() == cards.size() && !bingo) {
+                            if (winning_cards.size() == cards.size() && !lastbingo) {
                                 cout << "Part 2 - The score of the last winning board is: " 
                                      << cards[card][row][col].value * sumOfUnmarked(cards[card])
                                      << endl;
-                                bingo = true;
+                                lastbingo = true;
                             }
                         }
                     }
