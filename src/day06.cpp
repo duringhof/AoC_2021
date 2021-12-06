@@ -6,7 +6,7 @@ int main() {
 
     vector<string> input = readLines("../input/input05.txt");
 
-    cout << "PDay 6 is not ready yet !!!" << endl;
+    cout << "Day 6 is not ready yet !!!" << endl;
 
     return 0;
 }
