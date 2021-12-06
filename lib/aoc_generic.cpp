@@ -14,6 +14,20 @@ vector<int> readInput(string file){
 	return input;
 };
 
+vector<int> readInputWithCommas(string file){
+    // Reads input file and return a vector<int> called input
+	vector<int> input;
+	ifstream inputFile(file);
+	int number;
+    char dummy;
+	while (inputFile >> number){
+		input.push_back(number);
+        inputFile >> dummy;
+	}
+	inputFile.close();
+	return input;
+};
+
 vector<long int> readInputLong(string file){
     // Reads input file and return a vector<int> called input
 	vector<long int> input;
