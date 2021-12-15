@@ -3,60 +3,60 @@
 
 using namespace std;
 
-string executeReaction(char first, char second, vector<vector<string>>& reactions) {
-    string result(1,first);
-    for (auto& reaction : reactions) {
-        if (reaction[0][0] == first && reaction[0][1] == second) {
-            result.append(1, reaction[1][0]);
+void executeReactions(vector<vector<string>>& reactions, vector<long>& reactionCounts) {
+    vector<long> newReactionCounts(reactionCounts.size(), 0);
+    for (int i = 0; i < reactions.size(); i++) {
+        if (reactionCounts[i] > 0) {
+            for (int j = 0; j < reactions.size(); j++) {
+                if (reactions[j][0] == reactions[i][1] || reactions[j][0] == reactions[i][2]) {
+                    newReactionCounts[j] += reactionCounts[i];
+                }
+            }
         }
     }
-    //result.append(1, second);
-    return result;
+    reactionCounts = newReactionCounts;
 }
 
-string polymerConversion(vector<vector<string>>& reactions, string polymerInput) {
-    string polymerOutput;
-    for (int c = 0; c < polymerInput.size()-1; c++) {
-        char first = polymerInput[c];
-        char next = polymerInput[c+1];
-        polymerOutput += executeReaction(first, next, reactions);
-    }
-    polymerOutput += polymerInput[polymerInput.size()-1];
-    return polymerOutput;
-}
-
-int mostCommon(string input) {
-    map<char, int> charCount;
-    for (char c : input) {
-        charCount[c]++;
-    }
-    int maxCount = 0;
-    char maxChar = ' ';
-    for (auto& c : charCount) {
-        if (c.second > maxCount) {
-            maxCount = c.second;
-            maxChar = c.first;
+int countChars(string& s, char c) {
+    int count = 0;
+    for (int i = 0; i < s.size(); i++) {
+        if (s[i] == c) {
+            count++;
         }
     }
-    return maxCount;
+    return count;
 }
 
-int leastCommon(string input) {
-    map<char, int> charCount;
-    for (char c : input) {
-        charCount[c]++;
+map<char,long> countElements(vector<vector<string>>& reactions, vector<long>& reactionCounts, string& polymerTemplate) {
+    map<char, long> elements;
+    for (int i = 0; i < reactions.size(); i++) {
+        elements[reactions[i][0][0]] += reactionCounts[i];
     }
-    int minCount = INT_MAX;
-    char minChar = ' ';
-    for (auto& c : charCount) {
-        if (c.second < minCount) {
-            minCount = c.second;
-            minChar = c.first;
+    elements[polymerTemplate[polymerTemplate.size()-1]] += 1;
+    return elements;
+}
+
+long findMostCommon(map<char, long> elements) {
+    long mostCommon = 0;
+    for (auto& element : elements) {
+        if (element.second > mostCommon) {
+            mostCommon = element.second;
         }
     }
-    return minCount;
+    return mostCommon;
 }
- 
+
+long findLeastCommon(map<char, long> elements) {
+    long leastCommon = LONG_MAX;
+    for (auto& element : elements) {
+        if (element.second < leastCommon) {
+            leastCommon = element.second;
+        }
+    }
+    return leastCommon;
+}
+    
+
 int main() {
 
     vector<string> lines = readLines("../input/input14.txt");
@@ -71,20 +71,43 @@ int main() {
         ss >> input;
         ss >> dummy;
         ss >> newPolymer;
-        reactions.push_back({input, newPolymer});
+        string newPair1, newPair2;
+        newPair1.append(1, input[0]);
+        newPair1.append(1, newPolymer[0]);
+        newPair2.append(1, newPolymer[0]);
+        newPair2.append(1, input[1]);
+        reactions.push_back({input, newPair1, newPair2});
     }
 
-    string polymer = polymerTemplate;
+    vector<long> reactionCounts(reactions.size(), 0);
 
-    for (int i=0; i < 10; i++) {
-        polymer = polymerConversion(reactions, polymer);
+    for (int i = 0; i < polymerTemplate.size()-1; i++) {
+        string pair;
+        pair.append(1, polymerTemplate[i]);
+        pair.append(1, polymerTemplate[i+1]);
+        for (auto j = 0; j < reactions.size(); j++) {
+            if (pair == reactions[j][0]) {
+                reactionCounts[j]++;
+            }
+        }
+    }
+
+    for (int itr = 0; itr < 10; itr++) {
+        executeReactions(reactions, reactionCounts);
     }
 
     cout << "Part 1 - After 10 iterations, the answer is "
-         << mostCommon(polymer) - leastCommon(polymer)
+         << findMostCommon(countElements(reactions, reactionCounts, polymerTemplate)) - 
+            findLeastCommon(countElements(reactions, reactionCounts, polymerTemplate))
          << endl;
 
-    cout << "Part 2 - Not done..."
+    for (int itr = 0; itr < 30; itr++) {
+        executeReactions(reactions, reactionCounts);
+    }
+
+    cout << "Part 1 - After 40 iterations, the answer is "
+         << findMostCommon(countElements(reactions, reactionCounts, polymerTemplate)) - 
+            findLeastCommon(countElements(reactions, reactionCounts, polymerTemplate))
          << endl;
 
     return 0;
