@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <climits>
 
 std::vector<int> readInput(std::string file);
 
